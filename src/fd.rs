@@ -1,16 +1,9 @@
-//! Owned and borrowed Unix-like file descriptors.
+//! Owned and borrowed Linux file descriptors.
 
 #![deny(unsafe_op_in_unsafe_fn)]
 
-use alloc::boxed::Box;
-use alloc::rc::Rc;
-use alloc::sync::Arc;
-
-use super::raw::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
-// use crate::io::close;
-use core::fmt;
-use core::marker::PhantomData;
-use core::mem::forget;
+use alloc::{boxed::Box, rc::Rc, sync::Arc};
+use core::{ffi::c_uint, fmt, marker::PhantomData};
 
 /// A borrowed file descriptor.
 ///
@@ -29,7 +22,7 @@ use core::mem::forget;
 #[derive(Copy, Clone)]
 #[repr(transparent)]
 pub struct BorrowedFd<'fd> {
-    fd: RawFd,
+    fd: c_uint,
     _phantom: PhantomData<&'fd OwnedFd>,
 }
 
@@ -44,7 +37,7 @@ pub struct BorrowedFd<'fd> {
 /// has the value `-1`.
 #[repr(transparent)]
 pub struct OwnedFd {
-    fd: RawFd,
+    fd: c_uint,
 }
 
 impl BorrowedFd<'_> {
@@ -55,101 +48,23 @@ impl BorrowedFd<'_> {
     /// The resource pointed to by `fd` must remain open for the duration of
     /// the returned `BorrowedFd`, and it must not have the value `-1`.
     #[inline]
-    pub const unsafe fn borrow_raw(fd: RawFd) -> Self {
-        assert!(fd != u32::MAX as RawFd);
-        // SAFETY: we just asserted that the value is in the valid range and isn't `-1` (the only value bigger than `0xFF_FF_FF_FE` unsigned)
+    pub const unsafe fn new(fd: c_uint) -> Self {
         Self {
             fd,
             _phantom: PhantomData,
         }
     }
-}
 
-impl OwnedFd {
-    // FIXME
-    // /// Creates a new `OwnedFd` instance that shares the same underlying file
-    // /// description as the existing `OwnedFd` instance.
-    // pub fn try_clone(&self) -> crate::io::Result<Self> {
-    //     self.as_fd().try_clone_to_owned()
-    // }
-}
-
-impl BorrowedFd<'_> {
-    // FIXME
-    /// Creates a new `OwnedFd` instance that shares the same underlying file
-    /// description as the existing `BorrowedFd` instance.
-    // pub fn try_clone_to_owned(&self) -> crate::io::Result<OwnedFd> {
-    //     // We want to atomically duplicate this file descriptor and set the
-    //     // CLOEXEC flag, and currently that's done via F_DUPFD_CLOEXEC. This
-    //     // is a POSIX flag that was added to Linux in 2.6.24.
-    //     #[cfg(not(any(target_os = "espidf", target_os = "vita")))]
-    //     let cmd = libc::F_DUPFD_CLOEXEC;
-
-    //     // For ESP-IDF, F_DUPFD is used instead, because the CLOEXEC semantics
-    //     // will never be supported, as this is a bare metal framework with
-    //     // no capabilities for multi-process execution. While F_DUPFD is also
-    //     // not supported yet, it might be (currently it returns ENOSYS).
-    //     #[cfg(any(target_os = "espidf", target_os = "vita"))]
-    //     let cmd = libc::F_DUPFD;
-
-    //     // Avoid using file descriptors below 3 as they are used for stdio
-    //     let fd = cvt(unsafe { libc::fcntl(self.as_raw_fd(), cmd, 3) })?;
-    //     Ok(unsafe { OwnedFd::from_raw_fd(fd) })
-    // }
-
-    /// Creates a new `OwnedFd` instance that shares the same underlying file
-    /// description as the existing `BorrowedFd` instance.
-    #[cfg(any(target_arch = "wasm32", target_os = "hermit"))]
-    #[stable(feature = "io_safety", since = "1.63.0")]
-    pub fn try_clone_to_owned(&self) -> crate::io::Result<OwnedFd> {
-        Err(crate::io::Error::UNSUPPORTED_PLATFORM)
-    }
-}
-
-impl AsRawFd for BorrowedFd<'_> {
     #[inline]
-    fn as_raw_fd(&self) -> RawFd {
+    pub const fn as_raw(&self) -> c_uint {
         self.fd
-    }
-}
-
-impl AsRawFd for OwnedFd {
-    #[inline]
-    fn as_raw_fd(&self) -> RawFd {
-        self.fd
-    }
-}
-
-impl IntoRawFd for OwnedFd {
-    #[inline]
-    fn into_raw_fd(self) -> RawFd {
-        let fd = self.fd;
-        forget(self);
-        fd
-    }
-}
-
-impl FromRawFd for OwnedFd {
-    /// Constructs a new instance of `Self` from the given raw file descriptor.
-    ///
-    /// # Safety
-    ///
-    /// The resource pointed to by `fd` must be open and suitable for assuming
-    /// [ownership][io-safety]. The resource must not require any cleanup other than `close`.
-    ///
-    /// [io-safety]: io#io-safety
-    #[inline]
-    unsafe fn from_raw_fd(fd: RawFd) -> Self {
-        assert_ne!(fd, u32::MAX as RawFd);
-        // SAFETY: we just asserted that the value is in the valid range and isn't `-1` (the only value bigger than `0xFF_FF_FF_FE` unsigned)
-        Self { fd }
     }
 }
 
 impl Drop for OwnedFd {
     #[inline]
     fn drop(&mut self) {
-        unsafe { crate::close(self.as_raw_fd()) }
+        unsafe { crate::close(self) }
     }
 }
 
@@ -166,10 +81,6 @@ impl fmt::Debug for OwnedFd {
 }
 
 /// A trait to borrow the file descriptor from an underlying object.
-///
-/// This is only available on unix platforms and must be imported in order to
-/// call the method. Windows platforms have a corresponding `AsHandle` and
-/// `AsSocket` set of traits.
 pub trait AsFd {
     /// Borrows the file descriptor.
     ///
@@ -216,7 +127,7 @@ impl AsFd for OwnedFd {
         // Safety: `OwnedFd` and `BorrowedFd` have the same validity
         // invariants, and the `BorrowedFd` is bounded by the lifetime
         // of `&self`.
-        unsafe { BorrowedFd::borrow_raw(self.as_raw_fd()) }
+        unsafe { BorrowedFd::new(self.fd) }
     }
 }
 

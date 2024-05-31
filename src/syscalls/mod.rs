@@ -24,7 +24,7 @@ pub use stat::*;
 pub use uname::*;
 pub use write::*;
 
-use crate::{fd::AsRawFd, Syscall};
+use crate::{fd::AsFd, Syscall};
 
 pub unsafe trait SyscallArg: sealed::Sealed {
     fn as_arg(&self) -> usize;
@@ -44,9 +44,9 @@ unsafe impl SyscallArg for &CStr {
     }
 }
 
-unsafe impl<T: AsRawFd> SyscallArg for T {
+unsafe impl<T: AsFd> SyscallArg for T {
     fn as_arg(&self) -> usize {
-        self.as_raw_fd() as usize
+        self.as_fd().as_raw() as usize
     }
 }
 
@@ -58,6 +58,13 @@ unsafe impl<T> SyscallArg for *const T {
 }
 
 unsafe impl SyscallArg for u32 {
+    #[inline]
+    fn as_arg(&self) -> usize {
+        *self as usize
+    }
+}
+
+unsafe impl SyscallArg for i32 {
     #[inline]
     fn as_arg(&self) -> usize {
         *self as usize
@@ -90,16 +97,24 @@ unsafe impl<T: SyscallArg> SyscallArg for Option<T> {
 mod sealed {
     use core::{ffi::CStr, mem::MaybeUninit};
 
-    use crate::fd::AsRawFd;
+    use crate::fd::AsFd;
 
     pub trait Sealed {}
 
     impl<T> Sealed for MaybeUninit<T> {}
     impl Sealed for &CStr {}
-    impl<T: AsRawFd> Sealed for T {}
+    impl<T: AsFd> Sealed for T {}
     impl<T> Sealed for *const T {}
     impl<T> Sealed for *mut T {}
+    impl Sealed for i8 {}
+    impl Sealed for i16 {}
+    impl Sealed for i32 {}
+    impl Sealed for i64 {}
+    impl Sealed for isize {}
+    impl Sealed for u8 {}
+    impl Sealed for u16 {}
     impl Sealed for u32 {}
+    impl Sealed for u64 {}
     impl Sealed for usize {}
     impl Sealed for &[u8] {}
     impl Sealed for &mut [u8] {}
