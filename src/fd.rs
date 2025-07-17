@@ -2,7 +2,6 @@
 
 #![deny(unsafe_op_in_unsafe_fn)]
 
-use alloc::{boxed::Box, rc::Rc, sync::Arc};
 use core::{ffi::c_uint, fmt, marker::PhantomData};
 
 /// A borrowed file descriptor.
@@ -131,38 +130,38 @@ impl AsFd for OwnedFd {
     }
 }
 
-/// This impl allows implementing traits that require `AsFd` on Arc.
-/// ```
-/// # #[cfg(any(unix, target_os = "wasi"))] mod group_cfg {
-/// # #[cfg(target_os = "wasi")]
-/// # use std::os::wasi::io::AsFd;
-/// # #[cfg(unix)]
-/// # use std::os::unix::io::AsFd;
-/// use std::net::UdpSocket;
-/// use std::sync::Arc;
-///
-/// trait MyTrait: AsFd {}
-/// impl MyTrait for Arc<UdpSocket> {}
-/// impl MyTrait for Box<UdpSocket> {}
-/// # }
-/// ```
-impl<T: AsFd + ?Sized> AsFd for Arc<T> {
-    #[inline]
-    fn as_fd(&self) -> BorrowedFd<'_> {
-        (**self).as_fd()
-    }
-}
+// /// This impl allows implementing traits that require `AsFd` on Arc.
+// /// ```
+// /// # #[cfg(any(unix, target_os = "wasi"))] mod group_cfg {
+// /// # #[cfg(target_os = "wasi")]
+// /// # use std::os::wasi::io::AsFd;
+// /// # #[cfg(unix)]
+// /// # use std::os::unix::io::AsFd;
+// /// use std::net::UdpSocket;
+// /// use std::sync::Arc;
+// ///
+// /// trait MyTrait: AsFd {}
+// /// impl MyTrait for Arc<UdpSocket> {}
+// /// impl MyTrait for Box<UdpSocket> {}
+// /// # }
+// /// ```
+// impl<T: AsFd + ?Sized> AsFd for Arc<T> {
+//     #[inline]
+//     fn as_fd(&self) -> BorrowedFd<'_> {
+//         (**self).as_fd()
+//     }
+// }
 
-impl<T: AsFd + ?Sized> AsFd for Rc<T> {
-    #[inline]
-    fn as_fd(&self) -> BorrowedFd<'_> {
-        (**self).as_fd()
-    }
-}
+// impl<T: AsFd + ?Sized> AsFd for Rc<T> {
+//     #[inline]
+//     fn as_fd(&self) -> BorrowedFd<'_> {
+//         (**self).as_fd()
+//     }
+// }
 
-impl<T: AsFd + ?Sized> AsFd for Box<T> {
-    #[inline]
-    fn as_fd(&self) -> BorrowedFd<'_> {
-        (**self).as_fd()
-    }
-}
+// impl<T: AsFd + ?Sized> AsFd for Box<T> {
+//     #[inline]
+//     fn as_fd(&self) -> BorrowedFd<'_> {
+//         (**self).as_fd()
+//     }
+// }

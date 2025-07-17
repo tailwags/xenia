@@ -1,7 +1,5 @@
 #![no_std]
 
-extern crate alloc;
-
 mod errno;
 mod nr;
 mod syscalls;
