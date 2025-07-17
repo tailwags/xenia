@@ -24,7 +24,7 @@ pub use stat::*;
 pub use uname::*;
 pub use write::*;
 
-use crate::{fd::AsFd, Syscall};
+use crate::{Syscall, fd::AsFd};
 
 pub unsafe trait SyscallArg: sealed::Sealed {
     fn as_arg(&self) -> usize;
@@ -123,53 +123,61 @@ mod sealed {
 
 #[inline]
 pub unsafe fn syscall0_readonly(syscall: Syscall) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags, readonly),
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags, readonly),
+        );
+        ret
+    }
 }
 
 #[inline]
 pub unsafe fn syscall1<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags),
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags),
+        );
+        ret
+    }
 }
 
 #[inline]
 pub unsafe fn syscall1_readonly<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags, readonly)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags, readonly)
+        );
+        ret
+    }
 }
 
 #[inline]
 pub unsafe fn syscall1_noreturn<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> ! {
-    asm!(
-        "syscall",
-        in("rax") syscall.as_raw(),
-        in("rdi") arg0.as_arg(),
-        options(nostack, noreturn)
-    )
+    unsafe {
+        asm!(
+            "syscall",
+            in("rax") syscall.as_raw(),
+            in("rdi") arg0.as_arg(),
+            options(nostack, noreturn)
+        )
+    }
 }
 
 #[inline]
@@ -178,17 +186,19 @@ pub unsafe fn syscall2<Arg0: SyscallArg, Arg1: SyscallArg>(
     arg0: Arg0,
     arg1: Arg1,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -197,17 +207,19 @@ pub unsafe fn syscall2_readonly<Arg0: SyscallArg, Arg1: SyscallArg>(
     arg0: Arg0,
     arg1: Arg1,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags, readonly)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags, readonly)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -217,18 +229,20 @@ pub unsafe fn syscall3<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg>(
     arg1: Arg1,
     arg2: Arg2,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -238,18 +252,20 @@ pub unsafe fn syscall3_readonly<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: Syscal
     arg1: Arg1,
     arg2: Arg2,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags, readonly)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags, readonly)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -260,19 +276,21 @@ pub unsafe fn syscall4<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg, Arg
     arg2: Arg2,
     arg3: Arg3,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        in("r10") arg3.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            in("r10") arg3.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -288,19 +306,21 @@ pub unsafe fn syscall4_readonly<
     arg2: Arg2,
     arg3: Arg3,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        in("r10") arg3.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags, readonly)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            in("r10") arg3.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags, readonly)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -318,20 +338,22 @@ pub unsafe fn syscall5<
     arg3: Arg3,
     arg4: Arg4,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        in("r10") arg3.as_arg(),
-        in("r8") arg4.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            in("r10") arg3.as_arg(),
+            in("r8") arg4.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -349,20 +371,22 @@ pub unsafe fn syscall5_readonly<
     arg3: Arg3,
     arg4: Arg4,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        in("r10") arg3.as_arg(),
-        in("r8") arg4.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags, readonly)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            in("r10") arg3.as_arg(),
+            in("r8") arg4.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags, readonly)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -382,21 +406,23 @@ pub unsafe fn syscall6<
     arg4: Arg4,
     arg5: Arg5,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        in("r10") arg3.as_arg(),
-        in("r8") arg4.as_arg(),
-        in("r9") arg5.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            in("r10") arg3.as_arg(),
+            in("r8") arg4.as_arg(),
+            in("r9") arg5.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags)
+        );
+        ret
+    }
 }
 
 #[inline]
@@ -416,19 +442,21 @@ pub unsafe fn syscall6_readonly<
     arg4: Arg4,
     arg5: Arg5,
 ) -> usize {
-    let ret;
-    asm!(
-        "syscall",
-        inlateout("rax") syscall.as_raw() => ret,
-        in("rdi") arg0.as_arg(),
-        in("rsi") arg1.as_arg(),
-        in("rdx") arg2.as_arg(),
-        in("r10") arg3.as_arg(),
-        in("r8") arg4.as_arg(),
-        in("r9") arg5.as_arg(),
-        lateout("rcx") _,
-        lateout("r11") _,
-        options(nostack, preserves_flags, readonly)
-    );
-    ret
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            in("r10") arg3.as_arg(),
+            in("r8") arg4.as_arg(),
+            in("r9") arg5.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
+            options(nostack, preserves_flags, readonly)
+        );
+        ret
+    }
 }

@@ -1,8 +1,8 @@
 use core::{ffi::CStr, mem::MaybeUninit};
 
-use linux_raw_sys::general::{stat, AT_FDCWD};
+use linux_raw_sys::general::{AT_FDCWD, stat};
 
-use crate::{syscall4, Errno, Result, Syscall};
+use crate::{Errno, Result, Syscall, syscall4};
 
 pub fn stat(path: &CStr) -> Result<stat> {
     let stat = MaybeUninit::<stat>::uninit();

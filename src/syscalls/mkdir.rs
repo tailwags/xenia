@@ -3,7 +3,7 @@ use core::ffi::CStr;
 use bitflags::bitflags;
 use linux_raw_sys::general::{__kernel_mode_t, AT_FDCWD};
 
-use crate::{syscall3_readonly, Result, Syscall};
+use crate::{Result, Syscall, syscall3_readonly};
 
 bitflags! {
     pub struct Mode: __kernel_mode_t {

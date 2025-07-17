@@ -1,6 +1,6 @@
 use core::ffi::c_int;
 
-use crate::{syscall1_noreturn, Syscall};
+use crate::{Syscall, syscall1_noreturn};
 
 #[inline]
 pub fn exit_group(exit_code: c_int) -> ! {

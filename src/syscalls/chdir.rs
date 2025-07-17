@@ -1,6 +1,6 @@
 use core::ffi::CStr;
 
-use crate::{syscall1_readonly, Result, Syscall};
+use crate::{Result, Syscall, syscall1_readonly};
 
 pub fn chdir(path: &CStr) -> Result<()> {
     // FIXME

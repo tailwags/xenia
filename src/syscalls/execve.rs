@@ -1,6 +1,6 @@
-use core::ffi::{c_char, CStr};
+use core::ffi::{CStr, c_char};
 
-use crate::{syscall3_readonly, Errno, Syscall};
+use crate::{Errno, Syscall, syscall3_readonly};
 
 pub unsafe fn execve(
     path: &CStr,

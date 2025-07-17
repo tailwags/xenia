@@ -2,7 +2,7 @@ use core::{ffi::CStr, mem::MaybeUninit};
 
 use linux_raw_sys::system::new_utsname;
 
-use crate::{syscall1, Syscall};
+use crate::{Syscall, syscall1};
 
 #[repr(transparent)]
 pub struct Uname {

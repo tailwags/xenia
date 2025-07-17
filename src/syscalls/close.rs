@@ -1,6 +1,8 @@
-use crate::{fd::AsFd, syscall1_readonly, Syscall};
+use crate::{Syscall, fd::AsFd, syscall1_readonly};
 
 #[inline]
 pub unsafe fn close<Fd: AsFd>(fd: Fd) {
-    let _ret = syscall1_readonly(Syscall::CLOSE, fd);
+    unsafe {
+        let _ret = syscall1_readonly(Syscall::CLOSE, fd);
+    }
 }
