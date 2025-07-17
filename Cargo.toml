@@ -6,5 +6,10 @@ description = "xenia"
 license = "Apache-2.0 WITH LLVM-exception"
 
 [dependencies]
-bitflags = "2.5.0"
-linux-raw-sys = { version = "0.6.4", default-features = false, features = ["errno", "general", "system", "no_std"] }
+bitflags = "2.9.1"
+linux-raw-sys = { version = "0.10.0", default-features = false, features = [
+    "errno",
+    "general",
+    "system",
+    "no_std",
+] }
