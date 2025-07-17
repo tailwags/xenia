@@ -41,10 +41,10 @@ impl Uname {
 
 #[inline]
 pub fn uname() -> Uname {
-    let uname = MaybeUninit::<new_utsname>::uninit();
+    let mut uname = MaybeUninit::<new_utsname>::uninit();
 
     unsafe {
-        syscall1(Syscall::UNAME, uname);
+        syscall1(Syscall::UNAME, &mut uname);
         Uname::from_raw(uname.assume_init())
     }
 }

@@ -5,11 +5,11 @@ use linux_raw_sys::general::{AT_FDCWD, stat};
 use crate::{Errno, Result, Syscall, syscall4};
 
 pub fn stat(path: &CStr) -> Result<stat> {
-    let stat = MaybeUninit::<stat>::uninit();
+    let mut stat = MaybeUninit::<stat>::uninit();
 
     // FIXME
     unsafe {
-        let ret = syscall4(Syscall::NEWFSTATAT, AT_FDCWD, path, stat, 0usize);
+        let ret = syscall4(Syscall::NEWFSTATAT, AT_FDCWD, path, &mut stat, 0usize);
 
         if ret != 0 {
             return Err(Errno::from_raw(ret as u16));

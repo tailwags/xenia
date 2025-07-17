@@ -30,10 +30,17 @@ pub unsafe trait SyscallArg: sealed::Sealed {
     fn as_arg(&self) -> usize;
 }
 
-unsafe impl<T> SyscallArg for MaybeUninit<T> {
+unsafe impl<T> SyscallArg for &mut MaybeUninit<T> {
     #[inline]
     fn as_arg(&self) -> usize {
         self.as_ptr() as usize
+    }
+}
+
+unsafe impl<T> SyscallArg for *mut T {
+    #[inline]
+    fn as_arg(&self) -> usize {
+        *self as usize
     }
 }
 
@@ -101,7 +108,7 @@ mod sealed {
 
     pub trait Sealed {}
 
-    impl<T> Sealed for MaybeUninit<T> {}
+    impl<T> Sealed for &mut MaybeUninit<T> {}
     impl Sealed for &CStr {}
     impl<T: AsFd> Sealed for T {}
     impl<T> Sealed for *const T {}
