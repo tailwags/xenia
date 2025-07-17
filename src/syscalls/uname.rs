@@ -14,27 +14,27 @@ impl Uname {
         Self { raw }
     }
 
-    pub fn sysname(&self) -> &CStr {
+    pub const fn sysname(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.raw.sysname.as_ptr()) }
     }
 
-    pub fn nodename(&self) -> &CStr {
+    pub const fn nodename(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.raw.nodename.as_ptr()) }
     }
 
-    pub fn release(&self) -> &CStr {
+    pub const fn release(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.raw.release.as_ptr()) }
     }
 
-    pub fn version(&self) -> &CStr {
+    pub const fn version(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.raw.version.as_ptr()) }
     }
 
-    pub fn machine(&self) -> &CStr {
+    pub const fn machine(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.raw.machine.as_ptr()) }
     }
 
-    pub fn domainname(&self) -> &CStr {
+    pub const fn domainname(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.raw.domainname.as_ptr()) }
     }
 }
