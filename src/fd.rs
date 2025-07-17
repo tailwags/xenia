@@ -63,7 +63,7 @@ impl BorrowedFd<'_> {
 impl Drop for OwnedFd {
     #[inline]
     fn drop(&mut self) {
-        unsafe { crate::close(self) }
+        let _ = unsafe { crate::close(self) };
     }
 }
 

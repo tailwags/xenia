@@ -9,5 +9,5 @@ pub unsafe fn execve(
 ) -> Errno {
     let ret = unsafe { syscall3_readonly(Syscall::EXECVE, path, args, env_vars) };
 
-    Errno::from_raw(ret as u16)
+    unsafe { Errno::from_raw(ret as u16) }
 }

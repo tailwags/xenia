@@ -2,19 +2,13 @@ use core::{ffi::CStr, mem::MaybeUninit};
 
 use linux_raw_sys::general::{AT_FDCWD, stat};
 
-use crate::{Errno, Result, Syscall, syscall4};
+use crate::{Result, Syscall, syscall4, syscall_result_unit};
 
 pub fn stat(path: &CStr) -> Result<stat> {
     let mut stat = MaybeUninit::<stat>::uninit();
 
-    // FIXME
     unsafe {
-        let ret = syscall4(Syscall::NEWFSTATAT, AT_FDCWD, path, &mut stat, 0usize);
-
-        if ret != 0 {
-            return Err(Errno::from_raw(ret as u16));
-        }
-
+        syscall_result_unit(syscall4(Syscall::NEWFSTATAT, AT_FDCWD, path, &mut stat, 0usize))?;
         Ok(stat.assume_init())
     }
 }

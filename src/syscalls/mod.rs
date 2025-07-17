@@ -24,7 +24,7 @@ pub use stat::*;
 pub use uname::*;
 pub use write::*;
 
-use crate::{Syscall, fd::AsFd};
+use crate::{Errno, Result, Syscall, fd::AsFd};
 
 pub unsafe trait SyscallArg: sealed::Sealed {
     fn as_arg(&self) -> usize;
@@ -126,6 +126,24 @@ mod sealed {
     impl Sealed for &[u8] {}
     impl Sealed for &mut [u8] {}
     impl<T: Sealed> Sealed for Option<T> {}
+}
+
+#[inline]
+pub fn syscall_result(ret: usize) -> Result<usize> {
+    if (-4095..0).contains(&(ret as isize)) {
+        Err(unsafe { Errno::from_raw(ret as u16) })
+    } else {
+        Ok(ret)
+    }
+}
+
+#[inline]
+pub fn syscall_result_unit(ret: usize) -> Result<()> {
+    if (-4095..0).contains(&(ret as isize)) {
+        Err(unsafe { Errno::from_raw(ret as u16) })
+    } else {
+        Ok(())
+    }
 }
 
 #[inline]

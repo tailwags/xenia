@@ -1,7 +1,7 @@
 use bitflags::bitflags;
 use core::ffi::{CStr, c_uint};
 
-use crate::{Result, Syscall, syscall5_readonly};
+use crate::{Result, Syscall, syscall5_readonly, syscall_result_unit};
 
 bitflags! {
     pub struct MountFlags: c_uint {
@@ -19,8 +19,7 @@ pub fn mount(
     flags: MountFlags,
     data: Option<&CStr>,
 ) -> Result<()> {
-    // FIXME
-    unsafe {
+    syscall_result_unit(unsafe {
         syscall5_readonly(
             Syscall::MOUNT,
             source,
@@ -28,8 +27,6 @@ pub fn mount(
             file_system_type,
             flags.bits(),
             data,
-        );
-    }
-
-    Ok(())
+        )
+    })
 }
