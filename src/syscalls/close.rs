@@ -1,4 +1,4 @@
-use crate::{Result, Syscall, fd::AsFd, syscall1_readonly, syscall_result_unit};
+use crate::{Result, Syscall, fd::AsFd, syscall_result_unit, syscall1_readonly};
 
 #[inline]
 pub unsafe fn close<Fd: AsFd>(fd: Fd) -> Result<()> {

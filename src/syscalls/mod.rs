@@ -24,7 +24,10 @@ pub use stat::*;
 pub use uname::*;
 pub use write::*;
 
-use crate::{Errno, Result, Syscall, fd::AsFd};
+use crate::{
+    Errno, Result, Syscall,
+    fd::{AsFd, AsRawFd},
+};
 
 pub unsafe trait SyscallArg: sealed::Sealed {
     fn as_arg(&self) -> usize;
@@ -53,7 +56,7 @@ unsafe impl SyscallArg for &CStr {
 
 unsafe impl<T: AsFd> SyscallArg for T {
     fn as_arg(&self) -> usize {
-        self.as_fd().as_raw() as usize
+        self.as_fd().as_raw_fd() as usize
     }
 }
 

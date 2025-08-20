@@ -1,4 +1,7 @@
 #![no_std]
+#![allow(internal_features)]
+#![feature(temporary_niche_types)]
+#![feature(rustc_attrs)]
 
 mod errno;
 mod nr;

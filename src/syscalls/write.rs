@@ -1,4 +1,4 @@
-use crate::{Result, Syscall, fd::AsFd, syscall3_readonly, syscall_result};
+use crate::{Result, Syscall, fd::AsFd, syscall_result, syscall3_readonly};
 
 #[inline]
 pub fn write<Fd: AsFd>(fd: Fd, buf: &[u8]) -> Result<usize> {

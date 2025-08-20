@@ -1,7 +1,7 @@
 use bitflags::bitflags;
 use core::ffi::{CStr, c_uint};
 
-use crate::{Result, Syscall, syscall5_readonly, syscall_result_unit};
+use crate::{Result, Syscall, syscall_result_unit, syscall5_readonly};
 
 bitflags! {
     pub struct MountFlags: c_uint {
