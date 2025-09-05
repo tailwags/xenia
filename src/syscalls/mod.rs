@@ -1,30 +1,17 @@
 use core::{arch::asm, ffi::CStr, mem::MaybeUninit, ptr::null};
 
-mod chdir;
-mod chroot;
-mod close;
-mod execve;
-mod exit_group;
-mod geteuid;
-mod getpid;
-mod mkdir;
-mod mount;
-mod stat;
-mod uname;
-mod write;
+macro_rules! syscall_modules {
+    ($($module:ident),* $(,)?) => {
+        $(
+            mod $module;
+            pub use $module::*;
+        )*
+    };
+}
 
-pub use chdir::*;
-pub use chroot::*;
-pub use close::*;
-pub use execve::*;
-pub use exit_group::*;
-pub use geteuid::*;
-pub use getpid::*;
-pub use mkdir::*;
-pub use mount::*;
-pub use stat::*;
-pub use uname::*;
-pub use write::*;
+syscall_modules! {
+    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, uname, write,
+}
 
 use crate::{
     Errno, Result, Syscall,
