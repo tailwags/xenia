@@ -1,16 +1,8 @@
 use core::ffi::CStr;
 
-use bitflags::bitflags;
-use linux_raw_sys::general::{__kernel_mode_t, AT_FDCWD};
+use linux_raw_sys::general::AT_FDCWD;
 
-use crate::{Result, Syscall, syscall_result_unit, syscall3_readonly};
-
-bitflags! {
-    pub struct Mode: __kernel_mode_t {
-
-        const _ = !0;
-    }
-}
+use crate::{Mode, Result, Syscall, syscall_result_unit, syscall3_readonly};
 
 pub fn mkdir(path: &CStr, mode: Mode) -> Result<()> {
     syscall_result_unit(unsafe { syscall3_readonly(Syscall::MKDIRAT, AT_FDCWD, path, mode.bits()) })

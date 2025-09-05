@@ -7,6 +7,7 @@ mod errno;
 mod guid;
 mod nr;
 mod syscalls;
+mod types;
 
 #[cfg(not(feature = "std"))]
 pub mod fd;
@@ -19,3 +20,4 @@ pub use errno::*;
 pub use guid::*;
 pub use nr::Syscall;
 pub use syscalls::*;
+pub use types::*;
