@@ -4,6 +4,7 @@
 #![feature(rustc_attrs)]
 
 mod errno;
+mod guid;
 mod nr;
 mod syscalls;
 
@@ -15,5 +16,6 @@ pub use std::os::fd;
 pub mod stdio;
 
 pub use errno::*;
+pub use guid::*;
 pub use nr::Syscall;
 pub use syscalls::*;
