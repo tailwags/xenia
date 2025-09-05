@@ -12,6 +12,7 @@ bitflags! {
     }
 }
 
+#[inline]
 pub fn mount(
     source: Option<&CStr>,
     target: &CStr,
