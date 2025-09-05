@@ -5,8 +5,12 @@ edition = "2024"
 description = "xenia"
 license = "Apache-2.0 WITH LLVM-exception"
 
+[features]
+default = ["std"]
+std = []
+
 [dependencies]
-bitflags = "2.9.2"
+bitflags = "2.9.4"
 linux-raw-sys = { version = "0.10.0", default-features = false, features = [
     "errno",
     "general",

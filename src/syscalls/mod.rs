@@ -26,11 +26,18 @@ pub use write::*;
 
 use crate::{
     Errno, Result, Syscall,
-    fd::{AsFd, AsRawFd},
+    fd::{AsRawFd, BorrowedFd},
 };
 
 pub unsafe trait SyscallArg: sealed::Sealed {
     fn as_arg(&self) -> usize;
+}
+
+unsafe impl SyscallArg for BorrowedFd<'_> {
+    #[inline]
+    fn as_arg(&self) -> usize {
+        self.as_raw_fd() as usize
+    }
 }
 
 unsafe impl<T> SyscallArg for &mut MaybeUninit<T> {
@@ -51,12 +58,6 @@ unsafe impl SyscallArg for &CStr {
     #[inline]
     fn as_arg(&self) -> usize {
         self.as_ptr() as usize
-    }
-}
-
-unsafe impl<T: AsFd> SyscallArg for T {
-    fn as_arg(&self) -> usize {
-        self.as_fd().as_raw_fd() as usize
     }
 }
 
@@ -105,15 +106,14 @@ unsafe impl<T: SyscallArg> SyscallArg for Option<T> {
 }
 
 mod sealed {
+    use crate::fd::BorrowedFd;
     use core::{ffi::CStr, mem::MaybeUninit};
-
-    use crate::fd::AsFd;
 
     pub trait Sealed {}
 
+    impl Sealed for BorrowedFd<'_> {}
     impl<T> Sealed for &mut MaybeUninit<T> {}
     impl Sealed for &CStr {}
-    impl<T: AsFd> Sealed for T {}
     impl<T> Sealed for *const T {}
     impl<T> Sealed for *mut T {}
     impl Sealed for i8 {}
