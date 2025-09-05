@@ -1,6 +1,6 @@
 use linux_raw_sys::general::{
     __NR_chdir, __NR_chroot, __NR_close, __NR_execve, __NR_exit_group, __NR_geteuid, __NR_getpid,
-    __NR_getuid, __NR_mkdirat, __NR_mount, __NR_newfstatat, __NR_uname, __NR_write,
+    __NR_getuid, __NR_mkdirat, __NR_mount, __NR_newfstatat, __NR_umask, __NR_uname, __NR_write,
 };
 
 #[repr(transparent)]
@@ -20,6 +20,7 @@ impl Syscall {
     pub const MOUNT: Self = Self::from_raw(__NR_mount);
     pub const GETUID: Self = Self::from_raw(__NR_getuid);
     pub const GETEUID: Self = Self::from_raw(__NR_geteuid);
+    pub const UMASK: Self = Self::from_raw(__NR_umask);
 
     const fn from_raw(nr: u32) -> Self {
         Self(nr as usize)

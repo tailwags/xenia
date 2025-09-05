@@ -10,7 +10,7 @@ macro_rules! syscall_modules {
 }
 
 syscall_modules! {
-    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, uname, write,
+    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, uname, write, umask
 }
 
 use crate::{
