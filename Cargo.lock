@@ -16,7 +16,7 @@ checksum = "13d6a630ed4f43c11056af8768c4773df2c43bc780b6d8a46de345c17236c562"
 
 [[package]]
 name = "xenia"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "bitflags",
  "linux-raw-sys",
