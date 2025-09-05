@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(internal_features)]
-#![feature(temporary_niche_types)]
-#![feature(rustc_attrs)]
+#![cfg_attr(not(feature = "std"), allow(internal_features))]
+#![cfg_attr(not(feature = "std"), feature(temporary_niche_types))]
+#![cfg_attr(not(feature = "std"), feature(rustc_attrs))]
 
 mod errno;
 mod guid;
