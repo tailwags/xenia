@@ -21,3 +21,7 @@ dependencies = [
  "bitflags",
  "linux-raw-sys",
 ]
+
+[[package]]
+name = "xenia-utils"
+version = "0.1.0"
