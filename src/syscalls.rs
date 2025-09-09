@@ -1,4 +1,9 @@
-use core::{arch::asm, ffi::CStr, mem::MaybeUninit, ptr::null};
+use core::{
+    arch::asm,
+    ffi::{CStr, c_int},
+    mem::MaybeUninit,
+    ptr::null,
+};
 
 macro_rules! syscall_modules {
     ($($module:ident),* $(,)?) => {
@@ -10,7 +15,7 @@ macro_rules! syscall_modules {
 }
 
 syscall_modules! {
-    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, uname, write, umask
+    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, uname, write, umask, ioctl
 }
 
 use crate::{
@@ -135,6 +140,15 @@ pub fn syscall_result_unit(ret: usize) -> Result<()> {
         Err(unsafe { Errno::from_raw(ret as u16) })
     } else {
         Ok(())
+    }
+}
+
+#[inline]
+pub fn syscall_result_c_int(ret: usize) -> Result<c_int> {
+    if (-4095..0).contains(&(ret as isize)) {
+        Err(unsafe { Errno::from_raw(ret as u16) })
+    } else {
+        Ok(ret as c_int)
     }
 }
 
