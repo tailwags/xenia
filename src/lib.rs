@@ -3,6 +3,7 @@
 #![cfg_attr(not(feature = "std"), feature(temporary_niche_types))]
 #![cfg_attr(not(feature = "std"), feature(rustc_attrs))]
 
+mod as_cstr;
 mod errno;
 mod guid;
 mod nr;
@@ -16,6 +17,7 @@ pub use std::os::fd;
 
 pub mod stdio;
 
+pub use as_cstr::*;
 pub use errno::*;
 pub use guid::*;
 pub use nr::Syscall;
