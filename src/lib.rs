@@ -6,7 +6,6 @@
 mod as_cstr;
 mod errno;
 mod guid;
-mod nr;
 mod syscalls;
 mod types;
 
@@ -20,6 +19,5 @@ pub mod stdio;
 pub use as_cstr::*;
 pub use errno::*;
 pub use guid::*;
-pub use nr::Syscall;
 pub use syscalls::*;
 pub use types::*;

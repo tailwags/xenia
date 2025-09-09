@@ -1,3 +1,5 @@
+#![allow(unused)] // FIXME: remove when all syscalls types are used
+
 use core::{
     arch::asm,
     ffi::{CStr, c_int},
@@ -19,11 +21,47 @@ syscall_modules! {
 }
 
 use crate::{
-    Errno, Result, Syscall,
+    Errno, Result,
     fd::{AsRawFd, BorrowedFd},
 };
 
-pub unsafe trait SyscallArg: sealed::Sealed {
+use linux_raw_sys::general::{
+    __NR_chdir, __NR_chroot, __NR_close, __NR_execve, __NR_exit_group, __NR_geteuid, __NR_getpid,
+    __NR_getuid, __NR_ioctl, __NR_mkdirat, __NR_mount, __NR_newfstatat, __NR_umask, __NR_uname,
+    __NR_write,
+};
+
+#[repr(transparent)]
+pub struct Syscall(usize);
+
+impl Syscall {
+    pub const CHDIR: Self = Self::from_raw(__NR_chdir);
+    pub const WRITE: Self = Self::from_raw(__NR_write);
+    pub const CHROOT: Self = Self::from_raw(__NR_chroot);
+    pub const CLOSE: Self = Self::from_raw(__NR_close);
+    pub const EXECVE: Self = Self::from_raw(__NR_execve);
+    pub const UNAME: Self = Self::from_raw(__NR_uname);
+    pub const EXIT_GROUP: Self = Self::from_raw(__NR_exit_group);
+    pub const GETPID: Self = Self::from_raw(__NR_getpid);
+    pub const MKDIRAT: Self = Self::from_raw(__NR_mkdirat);
+    pub const NEWFSTATAT: Self = Self::from_raw(__NR_newfstatat);
+    pub const MOUNT: Self = Self::from_raw(__NR_mount);
+    pub const GETUID: Self = Self::from_raw(__NR_getuid);
+    pub const GETEUID: Self = Self::from_raw(__NR_geteuid);
+    pub const UMASK: Self = Self::from_raw(__NR_umask);
+    pub const IOCTL: Self = Self::from_raw(__NR_ioctl);
+
+    const fn from_raw(nr: u32) -> Self {
+        Self(nr as usize)
+    }
+
+    #[inline]
+    pub(crate) const fn as_raw(self) -> usize {
+        self.0
+    }
+}
+
+pub(crate) unsafe trait SyscallArg: sealed::Sealed {
     fn as_arg(&self) -> usize;
 }
 
@@ -103,7 +141,7 @@ mod sealed {
     use crate::fd::BorrowedFd;
     use core::{ffi::CStr, mem::MaybeUninit};
 
-    pub trait Sealed {}
+    pub(crate) trait Sealed {}
 
     impl Sealed for BorrowedFd<'_> {}
     impl<T> Sealed for &mut MaybeUninit<T> {}
@@ -126,7 +164,7 @@ mod sealed {
 }
 
 #[inline]
-pub fn syscall_result(ret: usize) -> Result<usize> {
+pub(crate) fn syscall_result(ret: usize) -> Result<usize> {
     if (-4095..0).contains(&(ret as isize)) {
         Err(unsafe { Errno::from_raw(ret as u16) })
     } else {
@@ -135,7 +173,7 @@ pub fn syscall_result(ret: usize) -> Result<usize> {
 }
 
 #[inline]
-pub fn syscall_result_unit(ret: usize) -> Result<()> {
+pub(crate) fn syscall_result_unit(ret: usize) -> Result<()> {
     if (-4095..0).contains(&(ret as isize)) {
         Err(unsafe { Errno::from_raw(ret as u16) })
     } else {
@@ -144,7 +182,7 @@ pub fn syscall_result_unit(ret: usize) -> Result<()> {
 }
 
 #[inline]
-pub fn syscall_result_c_int(ret: usize) -> Result<c_int> {
+pub(crate) fn syscall_result_c_int(ret: usize) -> Result<c_int> {
     if (-4095..0).contains(&(ret as isize)) {
         Err(unsafe { Errno::from_raw(ret as u16) })
     } else {
@@ -153,7 +191,7 @@ pub fn syscall_result_c_int(ret: usize) -> Result<c_int> {
 }
 
 #[inline]
-pub unsafe fn syscall0_readonly(syscall: Syscall) -> usize {
+pub(crate) unsafe fn syscall0_readonly(syscall: Syscall) -> usize {
     unsafe {
         let ret;
         asm!(
@@ -168,7 +206,7 @@ pub unsafe fn syscall0_readonly(syscall: Syscall) -> usize {
 }
 
 #[inline]
-pub unsafe fn syscall1<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> usize {
+pub(crate) unsafe fn syscall1<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> usize {
     unsafe {
         let ret;
         asm!(
@@ -184,7 +222,7 @@ pub unsafe fn syscall1<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> usize 
 }
 
 #[inline]
-pub unsafe fn syscall1_readonly<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> usize {
+pub(crate) unsafe fn syscall1_readonly<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> usize {
     unsafe {
         let ret;
         asm!(
@@ -200,7 +238,7 @@ pub unsafe fn syscall1_readonly<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) 
 }
 
 #[inline]
-pub unsafe fn syscall1_noreturn<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> ! {
+pub(crate) unsafe fn syscall1_noreturn<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) -> ! {
     unsafe {
         asm!(
             "syscall",
@@ -212,7 +250,7 @@ pub unsafe fn syscall1_noreturn<Arg0: SyscallArg>(syscall: Syscall, arg0: Arg0) 
 }
 
 #[inline]
-pub unsafe fn syscall2<Arg0: SyscallArg, Arg1: SyscallArg>(
+pub(crate) unsafe fn syscall2<Arg0: SyscallArg, Arg1: SyscallArg>(
     syscall: Syscall,
     arg0: Arg0,
     arg1: Arg1,
@@ -233,7 +271,7 @@ pub unsafe fn syscall2<Arg0: SyscallArg, Arg1: SyscallArg>(
 }
 
 #[inline]
-pub unsafe fn syscall2_readonly<Arg0: SyscallArg, Arg1: SyscallArg>(
+pub(crate) unsafe fn syscall2_readonly<Arg0: SyscallArg, Arg1: SyscallArg>(
     syscall: Syscall,
     arg0: Arg0,
     arg1: Arg1,
@@ -254,7 +292,7 @@ pub unsafe fn syscall2_readonly<Arg0: SyscallArg, Arg1: SyscallArg>(
 }
 
 #[inline]
-pub unsafe fn syscall3<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg>(
+pub(crate) unsafe fn syscall3<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg>(
     syscall: Syscall,
     arg0: Arg0,
     arg1: Arg1,
@@ -277,7 +315,7 @@ pub unsafe fn syscall3<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg>(
 }
 
 #[inline]
-pub unsafe fn syscall3_readonly<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg>(
+pub(crate) unsafe fn syscall3_readonly<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg>(
     syscall: Syscall,
     arg0: Arg0,
     arg1: Arg1,
@@ -300,7 +338,12 @@ pub unsafe fn syscall3_readonly<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: Syscal
 }
 
 #[inline]
-pub unsafe fn syscall4<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg, Arg3: SyscallArg>(
+pub(crate) unsafe fn syscall4<
+    Arg0: SyscallArg,
+    Arg1: SyscallArg,
+    Arg2: SyscallArg,
+    Arg3: SyscallArg,
+>(
     syscall: Syscall,
     arg0: Arg0,
     arg1: Arg1,
@@ -325,7 +368,7 @@ pub unsafe fn syscall4<Arg0: SyscallArg, Arg1: SyscallArg, Arg2: SyscallArg, Arg
 }
 
 #[inline]
-pub unsafe fn syscall4_readonly<
+pub(crate) unsafe fn syscall4_readonly<
     Arg0: SyscallArg,
     Arg1: SyscallArg,
     Arg2: SyscallArg,
@@ -355,40 +398,7 @@ pub unsafe fn syscall4_readonly<
 }
 
 #[inline]
-pub unsafe fn syscall5<
-    Arg0: SyscallArg,
-    Arg1: SyscallArg,
-    Arg2: SyscallArg,
-    Arg3: SyscallArg,
-    Arg4: SyscallArg,
->(
-    syscall: Syscall,
-    arg0: Arg0,
-    arg1: Arg1,
-    arg2: Arg2,
-    arg3: Arg3,
-    arg4: Arg4,
-) -> usize {
-    unsafe {
-        let ret;
-        asm!(
-            "syscall",
-            inlateout("rax") syscall.as_raw() => ret,
-            in("rdi") arg0.as_arg(),
-            in("rsi") arg1.as_arg(),
-            in("rdx") arg2.as_arg(),
-            in("r10") arg3.as_arg(),
-            in("r8") arg4.as_arg(),
-            lateout("rcx") _,
-            lateout("r11") _,
-            options(nostack, preserves_flags)
-        );
-        ret
-    }
-}
-
-#[inline]
-pub unsafe fn syscall5_readonly<
+pub(crate) unsafe fn syscall5<
     Arg0: SyscallArg,
     Arg1: SyscallArg,
     Arg2: SyscallArg,
@@ -414,6 +424,39 @@ pub unsafe fn syscall5_readonly<
             in("r8") arg4.as_arg(),
             lateout("rcx") _,
             lateout("r11") _,
+            options(nostack, preserves_flags)
+        );
+        ret
+    }
+}
+
+#[inline]
+pub(crate) unsafe fn syscall5_readonly<
+    Arg0: SyscallArg,
+    Arg1: SyscallArg,
+    Arg2: SyscallArg,
+    Arg3: SyscallArg,
+    Arg4: SyscallArg,
+>(
+    syscall: Syscall,
+    arg0: Arg0,
+    arg1: Arg1,
+    arg2: Arg2,
+    arg3: Arg3,
+    arg4: Arg4,
+) -> usize {
+    unsafe {
+        let ret;
+        asm!(
+            "syscall",
+            inlateout("rax") syscall.as_raw() => ret,
+            in("rdi") arg0.as_arg(),
+            in("rsi") arg1.as_arg(),
+            in("rdx") arg2.as_arg(),
+            in("r10") arg3.as_arg(),
+            in("r8") arg4.as_arg(),
+            lateout("rcx") _,
+            lateout("r11") _,
             options(nostack, preserves_flags, readonly)
         );
         ret
@@ -421,7 +464,7 @@ pub unsafe fn syscall5_readonly<
 }
 
 #[inline]
-pub unsafe fn syscall6<
+pub(crate) unsafe fn syscall6<
     Arg0: SyscallArg,
     Arg1: SyscallArg,
     Arg2: SyscallArg,
@@ -457,7 +500,7 @@ pub unsafe fn syscall6<
 }
 
 #[inline]
-pub unsafe fn syscall6_readonly<
+pub(crate) unsafe fn syscall6_readonly<
     Arg0: SyscallArg,
     Arg1: SyscallArg,
     Arg2: SyscallArg,
