@@ -17,8 +17,12 @@ macro_rules! syscall_modules {
 }
 
 syscall_modules! {
-    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, fstat, uname, write, umask, ioctl,
-    readlinkat, getcwd
+    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, fstat, uname, write, umask, ioctl
+}
+
+#[cfg(feature = "alloc")]
+syscall_modules! {
+    getcwd, readlinkat
 }
 
 use crate::{

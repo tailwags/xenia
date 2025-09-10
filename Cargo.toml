@@ -10,7 +10,8 @@ license = "Apache-2.0 WITH LLVM-exception"
 
 [features]
 default = ["std"]
-std = []
+std = ["alloc"]
+alloc = []
 
 [dependencies]
 bitflags = "2.9.4"

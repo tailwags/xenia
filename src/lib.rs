@@ -3,6 +3,9 @@
 #![cfg_attr(not(feature = "std"), feature(temporary_niche_types))]
 #![cfg_attr(not(feature = "std"), feature(rustc_attrs))]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 mod as_cstr;
 mod errno;
 mod guid;

@@ -1,5 +1,5 @@
+use alloc::{ffi::CString, vec::Vec};
 use core::ffi::CStr;
-use std::ffi::CString;
 
 use crate::{Errno, Syscall, syscall_result, syscall2};
 
