@@ -17,7 +17,7 @@ macro_rules! syscall_modules {
 }
 
 syscall_modules! {
-    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, uname, write, umask, ioctl
+    chdir, chroot, close, execve, exit_group,  geteuid, getpid, mkdir, mount, stat, fstat, uname, write, umask, ioctl
 }
 
 use crate::{
@@ -26,9 +26,9 @@ use crate::{
 };
 
 use linux_raw_sys::general::{
-    __NR_chdir, __NR_chroot, __NR_close, __NR_execve, __NR_exit_group, __NR_geteuid, __NR_getpid,
-    __NR_getuid, __NR_ioctl, __NR_mkdirat, __NR_mount, __NR_newfstatat, __NR_umask, __NR_uname,
-    __NR_write,
+    __NR_chdir, __NR_chroot, __NR_close, __NR_execve, __NR_exit_group, __NR_fstat, __NR_geteuid,
+    __NR_getpid, __NR_getuid, __NR_ioctl, __NR_mkdirat, __NR_mount, __NR_newfstatat, __NR_umask,
+    __NR_uname, __NR_write,
 };
 
 #[repr(transparent)]
@@ -45,6 +45,7 @@ impl Syscall {
     pub const GETPID: Self = Self::from_raw(__NR_getpid);
     pub const MKDIRAT: Self = Self::from_raw(__NR_mkdirat);
     pub const NEWFSTATAT: Self = Self::from_raw(__NR_newfstatat);
+    pub const FSTAT: Self = Self::from_raw(__NR_fstat);
     pub const MOUNT: Self = Self::from_raw(__NR_mount);
     pub const GETUID: Self = Self::from_raw(__NR_getuid);
     pub const GETEUID: Self = Self::from_raw(__NR_geteuid);
