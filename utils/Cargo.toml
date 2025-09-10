@@ -4,6 +4,7 @@ version = "0.0.1"
 edition = "2024"
 description = "xenia"
 license = "Apache-2.0 WITH LLVM-exception"
+include = ["src/**/*.rs", "../README.md", "../LICENSE"]
 
 [features]
 default = ["std"]
