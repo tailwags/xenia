@@ -45,7 +45,7 @@ pub fn ttyname<Fd: AsFd, B: Into<Vec<u8>>>(fd: Fd, buf: B) -> xenia::Result<CStr
     Not the biggest priority since it's more of performance optization thinghy considering we are on std anyway
      */
     let fd_path = format!("/proc/self/fd/{}", fd.as_fd().as_raw_fd());
-    let path = readlinkat(cwd(), &fd_path, Vec::new())?;
+    let path = readlinkat(cwd(), &fd_path, buf)?;
 
     let fd_stat = stat(fd_path)?;
     let path_stat = stat(&path)?;
