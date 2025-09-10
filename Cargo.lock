@@ -26,5 +26,6 @@ dependencies = [
 name = "xenia-utils"
 version = "0.0.1"
 dependencies = [
+ "linux-raw-sys",
  "xenia",
 ]
