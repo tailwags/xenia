@@ -22,3 +22,8 @@ pub fn tcgetwinsize<Fd: AsFd>(fd: Fd) -> xenia::Result<Winsize> {
         Ok(winsize.assume_init())
     }
 }
+
+#[inline]
+pub fn isatty<Fd: AsFd>(fd: Fd) -> bool {
+    tcgetwinsize(fd).is_ok()
+}
