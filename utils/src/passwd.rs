@@ -24,7 +24,7 @@ impl Passwd<'_> {
     }
 
     fn from_buf<'a>(buf: &'a str) -> Option<Passwd<'a>> {
-        let mut entries = buf.splitn(7, |s| s == ':');
+        let mut entries = buf.splitn(7, ':');
 
         let name = entries.next()?;
         let passwd = entries.next()?;

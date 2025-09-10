@@ -2,6 +2,7 @@
 #![cfg_attr(not(feature = "std"), allow(internal_features))]
 #![cfg_attr(not(feature = "std"), feature(temporary_niche_types))]
 #![cfg_attr(not(feature = "std"), feature(rustc_attrs))]
+#![allow(clippy::missing_safety_doc)] // FIXME: remove in the future
 
 #[cfg(feature = "alloc")]
 extern crate alloc;

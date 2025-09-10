@@ -64,7 +64,7 @@ impl Syscall {
     }
 
     #[inline]
-    pub(crate) const fn as_raw(self) -> usize {
+    pub(crate) const fn as_raw(&self) -> usize {
         self.0
     }
 }

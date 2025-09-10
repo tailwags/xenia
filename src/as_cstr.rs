@@ -239,7 +239,7 @@ where
     let buf_ptr = buf.as_mut_ptr().cast::<u8>();
 
     // This helps test our safety condition below.
-    debug_assert!(bytes.len() + 1 <= SMALL_PATH_BUFFER_SIZE);
+    debug_assert!(bytes.len() <= SMALL_PATH_BUFFER_SIZE);
 
     // SAFETY: `bytes.len() < SMALL_PATH_BUFFER_SIZE` which means we have space
     // for `bytes.len() + 1` `u8`s:
