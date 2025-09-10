@@ -16,6 +16,8 @@ pub struct Winsize {
     pub ws_ypixel: c_ushort,
 }
 
+const _: () = xenia::__assert_structs::<Winsize, linux_raw_sys::general::winsize>();
+
 #[inline]
 pub fn tcgetwinsize<Fd: AsFd>(fd: Fd) -> xenia::Result<Winsize> {
     unsafe {

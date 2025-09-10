@@ -21,3 +21,9 @@ pub use errno::*;
 pub use guid::*;
 pub use syscalls::*;
 pub use types::*;
+
+#[doc(hidden)]
+pub const fn __assert_structs<A, B>() {
+    assert!(core::mem::size_of::<A>() == core::mem::size_of::<B>());
+    assert!(core::mem::align_of::<A>() == core::mem::align_of::<B>());
+}
