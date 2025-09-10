@@ -9,12 +9,12 @@ pub type RawUid = c_uint;
 
 /// `uid_t`—A Unix user ID.
 #[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Uid(RawUid);
 
 /// `gid_t`—A Unix group ID.
 #[repr(transparent)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Gid(RawGid);
 
 impl Uid {
