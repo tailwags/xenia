@@ -1,16 +1,7 @@
 use bitflags::bitflags;
 use core::ffi::{CStr, c_uint};
 
-use crate::{Result, Syscall, syscall_result_unit, syscall5_readonly};
-
-bitflags! {
-    pub struct MountFlags: c_uint {
-        const MOVE = linux_raw_sys::general::MS_MOVE;
-        const RDONLY = linux_raw_sys::general::MS_RDONLY;
-
-        const _ = !0;
-    }
-}
+use crate::{MountFlags, Result, Syscall, syscall_result_unit, syscall5_readonly};
 
 #[inline]
 pub fn mount(
