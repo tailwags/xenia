@@ -19,7 +19,7 @@ bitflags! {
 bitflags! {
     #[repr(transparent)]
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-    pub struct AtFlags: u32 {
+    pub struct AtFlags: c_uint {
         const EMPTY_PATH = AT_EMPTY_PATH;
         const SYMLINK_NOFOLLOW = AT_SYMLINK_NOFOLLOW;
         const _ = !0;
@@ -30,6 +30,22 @@ bitflags! {
     pub struct MountFlags: c_uint {
         const MOVE = linux_raw_sys::general::MS_MOVE;
         const RDONLY = linux_raw_sys::general::MS_RDONLY;
+
+        const _ = !0;
+    }
+}
+
+bitflags! {
+    pub struct OFlags: c_uint {
+        const RDONLY = linux_raw_sys::general::O_RDONLY;
+        const WRONLY = linux_raw_sys::general::O_WRONLY;
+        const RDWR = linux_raw_sys::general::O_RDWR;
+        const APPEND = linux_raw_sys::general::O_APPEND;
+        const CREAT = linux_raw_sys::general::O_CREAT;
+        const DSYNC = linux_raw_sys::general::O_DSYNC;
+        const EXCL = linux_raw_sys::general::O_EXCL;
+        const NOCTTY = linux_raw_sys::general::O_NOCTTY;
+        const NONBLOCK = linux_raw_sys::general::O_NONBLOCK;
 
         const _ = !0;
     }
