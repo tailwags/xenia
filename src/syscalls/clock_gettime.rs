@@ -28,7 +28,7 @@ pub enum ClockId {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Timespec {
     pub tv_sec: c_longlong,
     pub tv_nsec: c_longlong,
