@@ -4,7 +4,7 @@ use linux_raw_sys::general::{
     __kernel_mode_t, AT_EMPTY_PATH, AT_SYMLINK_NOFOLLOW, CLOCK_BOOTTIME, CLOCK_BOOTTIME_ALARM,
     CLOCK_MONOTONIC, CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_RAW, CLOCK_PROCESS_CPUTIME_ID,
     CLOCK_REALTIME, CLOCK_REALTIME_ALARM, CLOCK_REALTIME_COARSE, CLOCK_SGI_CYCLE, CLOCK_TAI,
-    CLOCK_THREAD_CPUTIME_ID,
+    CLOCK_THREAD_CPUTIME_ID, UTIME_NOW, UTIME_OMIT,
 };
 
 bitflags! {
@@ -74,6 +74,17 @@ pub enum ClockId {
 pub struct Timespec {
     pub tv_sec: c_longlong,
     pub tv_nsec: c_longlong,
+}
+
+impl Timespec {
+    pub const NOW: Self = Self {
+        tv_sec: 0,
+        tv_nsec: UTIME_NOW as _,
+    };
+    pub const OMIT: Self = Self {
+        tv_sec: 0,
+        tv_nsec: UTIME_OMIT as _,
+    };
 }
 
 const _: () = crate::__assert_structs::<Timespec, linux_raw_sys::general::__kernel_timespec>();
