@@ -11,7 +11,7 @@ default = ["std"]
 std = ["xenia/std"]
 
 [dependencies]
-linux-raw-sys = { version = "0.11.0", default-features = false, features = [
+linux-raw-sys = { version = "0.12.1", default-features = false, features = [
     "ioctl",
     "no_std",
 ] }
