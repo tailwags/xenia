@@ -1,7 +1,8 @@
 use core::{ffi::c_ushort, mem::MaybeUninit};
-#[cfg(feature = "std")]
-use std::ffi::CString;
-#[cfg(feature = "std")]
+
+#[cfg(feature = "alloc")]
+use alloc::{ffi::CString, format, vec::Vec};
+#[cfg(feature = "alloc")]
 use xenia::{Errno, fd::AsRawFd, readlinkat, stat, stdio::cwd};
 
 use linux_raw_sys::ioctl;
@@ -34,7 +35,7 @@ pub fn isatty<Fd: AsFd>(fd: Fd) -> bool {
     tcgetwinsize(fd).is_ok()
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 pub fn ttyname<Fd: AsFd, B: Into<Vec<u8>>>(fd: Fd, buf: B) -> xenia::Result<CString> {
     // If we are not a tty there's no point in trying any other method
     if !isatty(&fd) {

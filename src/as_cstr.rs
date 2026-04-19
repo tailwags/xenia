@@ -4,10 +4,12 @@
 //! which is under the APACHE-2.0 license
 
 use core::{ffi::CStr, mem::MaybeUninit, ptr, slice};
+#[cfg(feature = "alloc")]
+use alloc::{borrow::Cow, ffi::CString, string::String, vec::Vec};
+
 #[cfg(feature = "std")]
 use std::{
-    borrow::Cow,
-    ffi::{CString, OsStr, OsString},
+    ffi::{OsStr, OsString},
     os::unix::ffi::{OsStrExt, OsStringExt},
     path::{Path, PathBuf},
 };
@@ -29,7 +31,7 @@ impl AsCStr for &CStr {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for &CString {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -40,7 +42,7 @@ impl AsCStr for &CString {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for CString {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -61,7 +63,7 @@ impl AsCStr for &str {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for &String {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -72,7 +74,7 @@ impl AsCStr for &String {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for String {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -159,7 +161,7 @@ impl AsCStr for &[u8] {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for &Vec<u8> {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -170,7 +172,7 @@ impl AsCStr for &Vec<u8> {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for Vec<u8> {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -181,7 +183,7 @@ impl AsCStr for Vec<u8> {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for Cow<'_, CStr> {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -192,7 +194,7 @@ impl AsCStr for Cow<'_, CStr> {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl AsCStr for Cow<'_, str> {
     #[inline]
     fn try_as_c_str<T, F>(self, f: F) -> crate::Result<T>
@@ -262,12 +264,12 @@ fn with_c_str_slow_path<T, F>(bytes: &[u8], f: F) -> crate::Result<T>
 where
     F: FnOnce(&CStr) -> crate::Result<T>,
 {
-    #[cfg(feature = "std")]
+    #[cfg(feature = "alloc")]
     {
         f(&CString::new(bytes).map_err(|_cstr_err| crate::Errno::INVAL)?)
     }
 
-    #[cfg(not(feature = "std"))]
+    #[cfg(not(feature = "alloc"))]
     {
         const LARGE_PATH_BUFFER_SIZE: usize = linux_raw_sys::general::PATH_MAX as usize;
 

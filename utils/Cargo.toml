@@ -8,7 +8,8 @@ include = ["src/**/*.rs", "../README.md", "../LICENSE"]
 
 [features]
 default = ["std"]
-std = ["xenia/std"]
+std = ["alloc", "xenia/std"]
+alloc = ["xenia/alloc"]
 
 [dependencies]
 linux-raw-sys = { version = "0.12.1", default-features = false, features = [
