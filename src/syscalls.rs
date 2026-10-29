@@ -23,7 +23,8 @@ macro_rules! syscall_modules {
 
 syscall_modules! {
     chdir, chroot, close, execve, exit_group, geteuid, getpid, mkdir, mount, stat, fstat, uname, write, umask, ioctl,
-    clock_gettime, utimensat, open, mmap, munmap, mprotect
+    clock_gettime, utimensat, open, mmap, munmap, mprotect,
+    madvise
 }
 
 #[cfg(feature = "alloc")]
@@ -38,9 +39,9 @@ use crate::{
 
 use linux_raw_sys::general::{
     __NR_chdir, __NR_chroot, __NR_clock_gettime, __NR_close, __NR_execve, __NR_exit_group,
-    __NR_fstat, __NR_getcwd, __NR_geteuid, __NR_getpid, __NR_getuid, __NR_ioctl, __NR_mkdirat,
-    __NR_mmap, __NR_mount, __NR_mprotect, __NR_munmap, __NR_newfstatat, __NR_open, __NR_readlinkat,
-    __NR_umask, __NR_uname, __NR_utimensat, __NR_write,
+    __NR_fstat, __NR_getcwd, __NR_geteuid, __NR_getpid, __NR_getuid, __NR_ioctl, __NR_madvise,
+    __NR_mkdirat, __NR_mmap, __NR_mount, __NR_mprotect, __NR_munmap, __NR_newfstatat, __NR_open,
+    __NR_readlinkat, __NR_umask, __NR_uname, __NR_utimensat, __NR_write,
 };
 
 #[repr(transparent)]
@@ -71,6 +72,7 @@ impl Syscall {
     pub const MMAP: Self = Self::from_raw(__NR_mmap);
     pub const MUNMAP: Self = Self::from_raw(__NR_munmap);
     pub const MPROTECT: Self = Self::from_raw(__NR_mprotect);
+    pub const MADVISE: Self = Self::from_raw(__NR_madvise);
 
     const fn from_raw(nr: u32) -> Self {
         Self(nr as usize)
