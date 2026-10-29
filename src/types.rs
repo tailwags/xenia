@@ -9,7 +9,7 @@ use linux_raw_sys::general::{
     MADV_GUARD_REMOVE, MADV_HUGEPAGE, MADV_HWPOISON, MADV_KEEPONFORK, MADV_MERGEABLE,
     MADV_NOHUGEPAGE, MADV_NORMAL, MADV_PAGEOUT, MADV_POPULATE_READ, MADV_POPULATE_WRITE,
     MADV_RANDOM, MADV_REMOVE, MADV_SEQUENTIAL, MADV_SOFT_OFFLINE, MADV_UNMERGEABLE, MADV_WILLNEED,
-    MADV_WIPEONFORK, UTIME_NOW, UTIME_OMIT,
+    MADV_WIPEONFORK, RUSAGE_CHILDREN, RUSAGE_SELF, RUSAGE_THREAD, UTIME_NOW, UTIME_OMIT,
 };
 
 bitflags! {
@@ -277,3 +277,47 @@ pub enum Advice {
     GuardInstall = MADV_GUARD_INSTALL,
     GuardRemove = MADV_GUARD_REMOVE,
 }
+
+/// Target of a `getrusage` call.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(i32)]
+pub enum UsageWho {
+    /// The calling process (`RUSAGE_SELF`).
+    Process = RUSAGE_SELF as i32,
+    /// Terminated and waited-for children (`RUSAGE_CHILDREN`).
+    Children = RUSAGE_CHILDREN,
+    /// The calling thread (`RUSAGE_THREAD`).
+    Thread = RUSAGE_THREAD as i32,
+}
+
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Timeval {
+    pub tv_sec: c_long,
+    pub tv_usec: c_long,
+}
+
+const _: () = crate::__assert_structs::<Timeval, linux_raw_sys::general::__kernel_old_timeval>();
+
+#[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Rusage {
+    pub ru_utime: Timeval,
+    pub ru_stime: Timeval,
+    pub ru_maxrss: c_long,
+    pub ru_ixrss: c_long,
+    pub ru_idrss: c_long,
+    pub ru_isrss: c_long,
+    pub ru_minflt: c_long,
+    pub ru_majflt: c_long,
+    pub ru_nswap: c_long,
+    pub ru_inblock: c_long,
+    pub ru_oublock: c_long,
+    pub ru_msgsnd: c_long,
+    pub ru_msgrcv: c_long,
+    pub ru_nsignals: c_long,
+    pub ru_nvcsw: c_long,
+    pub ru_nivcsw: c_long,
+}
+
+const _: () = crate::__assert_structs::<Rusage, linux_raw_sys::general::rusage>();
