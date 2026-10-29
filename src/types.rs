@@ -1,5 +1,8 @@
 use bitflags::bitflags;
-use core::ffi::{c_long, c_longlong, c_uint, c_ulong};
+use core::{
+    ffi::{c_int, c_long, c_longlong, c_uint, c_ulong},
+    num::NonZero,
+};
 use linux_raw_sys::general::{
     __kernel_mode_t, AT_EMPTY_PATH, AT_SYMLINK_NOFOLLOW, CLOCK_BOOTTIME, CLOCK_BOOTTIME_ALARM,
     CLOCK_MONOTONIC, CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_RAW, CLOCK_PROCESS_CPUTIME_ID,
@@ -354,3 +357,102 @@ pub struct SysInfo {
 }
 
 const _: () = crate::__assert_structs::<SysInfo, linux_raw_sys::system::sysinfo>();
+
+pub type RawSignal = c_int;
+
+#[repr(transparent)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+pub struct Signal(NonZero<RawSignal>);
+
+impl Signal {
+    #[doc(alias = "SIGHUP")]
+    pub const HUP: Self = Self::from_kernel(linux_raw_sys::general::SIGHUP);
+    #[doc(alias = "SIGINT")]
+    pub const INT: Self = Self::from_kernel(linux_raw_sys::general::SIGINT);
+    #[doc(alias = "SIGQUIT")]
+    pub const QUIT: Self = Self::from_kernel(linux_raw_sys::general::SIGQUIT);
+    #[doc(alias = "SIGILL")]
+    pub const ILL: Self = Self::from_kernel(linux_raw_sys::general::SIGILL);
+    #[doc(alias = "SIGTRAP")]
+    pub const TRAP: Self = Self::from_kernel(linux_raw_sys::general::SIGTRAP);
+    #[doc(alias = "SIGABRT", alias = "SIGIOT")]
+    pub const ABRT: Self = Self::from_kernel(linux_raw_sys::general::SIGABRT);
+    #[doc(alias = "SIGBUS")]
+    pub const BUS: Self = Self::from_kernel(linux_raw_sys::general::SIGBUS);
+    #[doc(alias = "SIGFPE")]
+    pub const FPE: Self = Self::from_kernel(linux_raw_sys::general::SIGFPE);
+    #[doc(alias = "SIGKILL")]
+    pub const KILL: Self = Self::from_kernel(linux_raw_sys::general::SIGKILL);
+    #[doc(alias = "SIGUSR1")]
+    pub const USR1: Self = Self::from_kernel(linux_raw_sys::general::SIGUSR1);
+    #[doc(alias = "SIGSEGV")]
+    pub const SEGV: Self = Self::from_kernel(linux_raw_sys::general::SIGSEGV);
+    #[doc(alias = "SIGUSR2")]
+    pub const USR2: Self = Self::from_kernel(linux_raw_sys::general::SIGUSR2);
+    #[doc(alias = "SIGPIPE")]
+    pub const PIPE: Self = Self::from_kernel(linux_raw_sys::general::SIGPIPE);
+    #[doc(alias = "SIGALRM")]
+    pub const ALRM: Self = Self::from_kernel(linux_raw_sys::general::SIGALRM);
+    #[doc(alias = "SIGTERM")]
+    pub const TERM: Self = Self::from_kernel(linux_raw_sys::general::SIGTERM);
+    #[doc(alias = "SIGSTKFLT")]
+    pub const STKFLT: Self = Self::from_kernel(linux_raw_sys::general::SIGSTKFLT);
+    #[doc(alias = "SIGCHLD")]
+    pub const CHLD: Self = Self::from_kernel(linux_raw_sys::general::SIGCHLD);
+    #[doc(alias = "SIGCONT")]
+    pub const CONT: Self = Self::from_kernel(linux_raw_sys::general::SIGCONT);
+    #[doc(alias = "SIGSTOP")]
+    pub const STOP: Self = Self::from_kernel(linux_raw_sys::general::SIGSTOP);
+    #[doc(alias = "SIGTSTP")]
+    pub const TSTP: Self = Self::from_kernel(linux_raw_sys::general::SIGTSTP);
+    #[doc(alias = "SIGTTIN")]
+    pub const TTIN: Self = Self::from_kernel(linux_raw_sys::general::SIGTTIN);
+    #[doc(alias = "SIGTTOU")]
+    pub const TTOU: Self = Self::from_kernel(linux_raw_sys::general::SIGTTOU);
+    #[doc(alias = "SIGURG")]
+    pub const URG: Self = Self::from_kernel(linux_raw_sys::general::SIGURG);
+    #[doc(alias = "SIGXCPU")]
+    pub const XCPU: Self = Self::from_kernel(linux_raw_sys::general::SIGXCPU);
+    #[doc(alias = "SIGXFSZ")]
+    pub const XFSZ: Self = Self::from_kernel(linux_raw_sys::general::SIGXFSZ);
+    #[doc(alias = "SIGVTALRM")]
+    pub const VTALRM: Self = Self::from_kernel(linux_raw_sys::general::SIGVTALRM);
+    #[doc(alias = "SIGPROF")]
+    pub const PROF: Self = Self::from_kernel(linux_raw_sys::general::SIGPROF);
+    #[doc(alias = "SIGWINCH")]
+    pub const WINCH: Self = Self::from_kernel(linux_raw_sys::general::SIGWINCH);
+    #[doc(alias = "SIGIO", alias = "SIGPOLL")]
+    pub const IO: Self = Self::from_kernel(linux_raw_sys::general::SIGIO);
+    #[doc(alias = "SIGPWR")]
+    pub const PWR: Self = Self::from_kernel(linux_raw_sys::general::SIGPWR);
+    #[doc(alias = "SIGSYS")]
+    pub const SYS: Self = Self::from_kernel(linux_raw_sys::general::SIGSYS);
+
+    /// Builds a constant from a `linux_raw_sys` signal number, failing compilation if it is 0.
+    const fn from_kernel(signal: u32) -> Self {
+        match NonZero::new(signal as RawSignal) {
+            Some(signal) => Self(signal),
+            None => panic!("signal number must be non-zero"),
+        }
+    }
+
+    /// Converts a raw signal number, returning `None` if it is outside `1..=_NSIG`.
+    pub const fn from_raw(raw: RawSignal) -> Option<Self> {
+        if raw > 0 && raw <= linux_raw_sys::general::_NSIG as RawSignal {
+            Some(unsafe { Self::from_raw_unchecked(raw) })
+        } else {
+            None
+        }
+    }
+
+    /// # Safety
+    ///
+    /// `raw` must be a valid signal number (in `1..=_NSIG`).
+    pub const unsafe fn from_raw_unchecked(raw: RawSignal) -> Self {
+        Self(unsafe { NonZero::new_unchecked(raw) })
+    }
+
+    pub const fn as_raw(&self) -> RawSignal {
+        self.0.get()
+    }
+}

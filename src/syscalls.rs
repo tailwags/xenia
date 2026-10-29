@@ -8,7 +8,7 @@ use core::{
 };
 
 use crate::{
-    Pid,
+    Pid, Signal,
     fd::{FromRawFd, OwnedFd, RawFd},
 };
 
@@ -24,7 +24,7 @@ macro_rules! syscall_modules {
 syscall_modules! {
     chdir, chroot, close, execve, exit_group, geteuid, getpid, mkdir, mount, stat, fstat, uname, write, umask, ioctl,
     clock_gettime, utimensat, open, mmap, munmap, mprotect,
-    madvise, read, getrusage, prctl, getrandom, sysinfo, gettid
+    madvise, read, getrusage, prctl, getrandom, sysinfo, gettid, tgkill
 }
 
 #[cfg(feature = "alloc")]
@@ -42,7 +42,7 @@ use linux_raw_sys::general::{
     __NR_fstat, __NR_getcwd, __NR_geteuid, __NR_getpid, __NR_getrandom, __NR_getrusage,
     __NR_gettid, __NR_getuid, __NR_ioctl, __NR_madvise, __NR_mkdirat, __NR_mmap, __NR_mount,
     __NR_mprotect, __NR_munmap, __NR_newfstatat, __NR_open, __NR_prctl, __NR_read, __NR_readlinkat,
-    __NR_sysinfo, __NR_umask, __NR_uname, __NR_utimensat, __NR_write,
+    __NR_sysinfo, __NR_tgkill, __NR_umask, __NR_uname, __NR_utimensat, __NR_write,
 };
 
 #[repr(transparent)]
@@ -80,6 +80,7 @@ impl Syscall {
     pub const GETRANDOM: Self = Self::from_raw(__NR_getrandom);
     pub const SYSINFO: Self = Self::from_raw(__NR_sysinfo);
     pub const GETTID: Self = Self::from_raw(__NR_gettid);
+    pub const TGKILL: Self = Self::from_raw(__NR_tgkill);
 
     const fn from_raw(nr: u32) -> Self {
         Self(nr as usize)
@@ -182,8 +183,14 @@ unsafe impl SyscallArg for Pid {
     }
 }
 
+unsafe impl SyscallArg for Signal {
+    fn into_arg(self) -> usize {
+        self.as_raw().into_arg()
+    }
+}
+
 mod sealed {
-    use crate::{Pid, fd::BorrowedFd};
+    use crate::{Pid, Signal, fd::BorrowedFd};
     use core::{ffi::CStr, mem::MaybeUninit};
 
     pub(crate) trait Sealed {}
@@ -207,6 +214,7 @@ mod sealed {
     impl Sealed for &mut [u8] {}
     impl<T: Sealed> Sealed for Option<T> {}
     impl Sealed for Pid {}
+    impl Sealed for Signal {}
 }
 
 #[inline]
