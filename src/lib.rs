@@ -10,6 +10,7 @@ extern crate alloc;
 mod as_cstr;
 mod errno;
 mod guid;
+mod pid;
 mod syscalls;
 mod types;
 
@@ -23,6 +24,7 @@ pub mod stdio;
 pub use as_cstr::*;
 pub use errno::*;
 pub use guid::*;
+pub use pid::*;
 pub use syscalls::*;
 pub use types::*;
 

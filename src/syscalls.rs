@@ -7,7 +7,10 @@ use core::{
     ptr::null,
 };
 
-use crate::fd::{FromRawFd, OwnedFd, RawFd};
+use crate::{
+    Pid,
+    fd::{FromRawFd, OwnedFd, RawFd},
+};
 
 macro_rules! syscall_modules {
     ($($module:ident),* $(,)?) => {
@@ -154,8 +157,14 @@ unsafe impl<T: SyscallArg> SyscallArg for Option<T> {
     }
 }
 
+unsafe impl SyscallArg for Pid {
+    fn into_arg(self) -> usize {
+        self.as_raw().into_arg()
+    }
+}
+
 mod sealed {
-    use crate::fd::BorrowedFd;
+    use crate::{Pid, fd::BorrowedFd};
     use core::{ffi::CStr, mem::MaybeUninit};
 
     pub(crate) trait Sealed {}
@@ -178,6 +187,7 @@ mod sealed {
     impl Sealed for &[u8] {}
     impl Sealed for &mut [u8] {}
     impl<T: Sealed> Sealed for Option<T> {}
+    impl Sealed for Pid {}
 }
 
 #[inline]
