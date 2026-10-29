@@ -278,6 +278,19 @@ pub enum Advice {
     GuardRemove = MADV_GUARD_REMOVE,
 }
 
+bitflags! {
+    /// Flags for `getrandom`.
+    #[repr(transparent)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct GetRandomFlags: c_uint {
+        const NONBLOCK = linux_raw_sys::general::GRND_NONBLOCK;
+        const RANDOM = linux_raw_sys::general::GRND_RANDOM;
+        const INSECURE = linux_raw_sys::general::GRND_INSECURE;
+
+        const _ = !0;
+    }
+}
+
 /// Target of a `getrusage` call.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(i32)]
