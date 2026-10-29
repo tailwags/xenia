@@ -3,9 +3,9 @@
 //! Most of the code in this module has been adapted from https://github.com/bytecodealliance/rustix
 //! which is under the APACHE-2.0 license
 
-use core::{ffi::CStr, mem::MaybeUninit, ptr, slice};
 #[cfg(feature = "alloc")]
 use alloc::{borrow::Cow, ffi::CString, string::String, vec::Vec};
+use core::{ffi::CStr, mem::MaybeUninit, ptr, slice};
 
 #[cfg(feature = "std")]
 use std::{
