@@ -334,3 +334,23 @@ pub struct Rusage {
 }
 
 const _: () = crate::__assert_structs::<Rusage, linux_raw_sys::general::rusage>();
+
+#[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SysInfo {
+    pub uptime: c_long,
+    pub loads: [c_ulong; 3],
+    pub totalram: c_ulong,
+    pub freeram: c_ulong,
+    pub sharedram: c_ulong,
+    pub bufferram: c_ulong,
+    pub totalswap: c_ulong,
+    pub freeswap: c_ulong,
+    pub procs: u16,
+    pad: u16,
+    pub totalhigh: c_ulong,
+    pub freehigh: c_ulong,
+    pub mem_unit: u32,
+}
+
+const _: () = crate::__assert_structs::<SysInfo, linux_raw_sys::system::sysinfo>();
